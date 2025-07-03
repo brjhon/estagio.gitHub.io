@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Estágio em Tela Cheia</title>
+  <style>
+    html,body {
+      background: #000; margin:0; padding:0; width:100vw; height:100vh;
+      display: flex; align-items: center; justify-content: center;
+    }
+    img { 
+      width: 100vw; 
+      height: 100vh; 
+      object-fit: cover; 
+      display: block; 
+      cursor: pointer;
+    }
+    #msg { color: #fff; position: absolute; top:10px; width: 100%; text-align: center; font-size: 1.2em; opacity:0.8;}
+  </style>
+</head>
+<body>
+  <div id="msg">Clique para entrar em tela cheia</div>
+  <img id="fullImage" src="" alt="Estágio" />
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const imgSrc = urlParams.get('src');
+    document.getElementById('fullImage').src = imgSrc;
+
+    function enterFullscreen() {
+      if (document.fullscreenElement) return;
+      const el = document.documentElement;
+      if (el.requestFullscreen) el.requestFullscreen();
+      else if (el.webkitRequestFullscreen) el.webkitRequestFullscreen();
+      else if (el.msRequestFullscreen) el.msRequestFullscreen();
+    }
+
+    setTimeout(enterFullscreen, 100);
+
+    document.body.addEventListener('click', enterFullscreen);
+    document.getElementById('fullImage').addEventListener('click', enterFullscreen);
+
+    document.addEventListener('fullscreenchange', () => {
+      document.getElementById('msg').style.display = document.fullscreenElement ? 'none' : '';
+    });
+  </script>
+</body>
+</html>

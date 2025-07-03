@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estágios de Calor</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 2rem; background-color: #f5f5f5; display: flex; flex-direction: column; align-items: center; }
+    h1 { color: #444; margin-bottom: 1.5rem; }
+    .center-image { margin-bottom: 2rem; }
+    .center-image img { max-width: 90vw; max-height: 80vh; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); cursor: pointer; transition: opacity 0.3s; }
+    .thumbnails { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; width: 100%; }
+    .thumbnails img { max-width: 150px; cursor: pointer; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); transition: transform 0.2s, opacity 0.3s; opacity: 0.7; }
+    .thumbnails img:hover { transform: scale(1.05); opacity: 1; }
+    .thumbnails img.selected { border: 2px solid #007BFF; opacity: 1; }
+  </style>
+</head>
+<body>
+  <h1>Estágios de Calor</h1>
+  <div class="center-image">
+    <img id="mainImage" src="estagios/estagio1.jpg" alt="Calor 1" title="Clique para abrir todos os estágios em tela cheia">
+  </div>
+  <div class="thumbnails">
+    <img src="estagios/estagio1.jpg" alt="Calor 1" class="thumbnail selected">
+    <img src="estagios/estagio2.jpg" alt="Calor 2" class="thumbnail">
+    <img src="estagios/estagio3.jpg" alt="Calor 3" class="thumbnail">
+    <img src="estagios/estagio4.jpg" alt="Calor 4" class="thumbnail">
+    <img src="estagios/estagio5.jpg" alt="Calor 5" class="thumbnail">
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const mainImage = document.getElementById('mainImage');
+      const thumbnails = Array.from(document.querySelectorAll('.thumbnail'));
+      let fadeHandler = null;
+      // Um popup para cada estágio
+      const popups = Array(thumbnails.length).fill(null);
+
+      function changeImage(src, alt) {
+        if (fadeHandler) mainImage.removeEventListener('transitionend', fadeHandler);
+        fadeHandler = (e) => {
+          if (e.propertyName === 'opacity') {
+            mainImage.src = src;
+            mainImage.alt = alt;
+            mainImage.style.opacity = '1';
+            mainImage.removeEventListener('transitionend', fadeHandler);
+            fadeHandler = null;
+            // Atualiza TODAS as abas para o estágio selecionado!
+            const url = 'visualizar.html?src=' + encodeURIComponent(src);
+            popups.forEach((popup, idx) => {
+              if (popup && !popup.closed) {
+                popups[idx].location.href = url;
+                popups[idx].focus();
+              }
+            });
+          }
+        };
+        mainImage.addEventListener('transitionend', fadeHandler);
+        mainImage.style.opacity = '0';
+      }
+
+      // Miniaturas: troca painel central e sincroniza todas as abas
+      thumbnails.forEach((thumb) => {
+        thumb.addEventListener('click', () => {
+          thumbnails.forEach(img => img.classList.remove('selected'));
+          thumb.classList.add('selected');
+          changeImage(thumb.src, thumb.alt);
+        });
+      });
+
+      // Clique no painel central: abre/reutiliza uma aba para cada estágio, sempre fullscreen
+      mainImage.addEventListener('click', () => {
+        const selectedThumb = thumbnails.find(thumb => thumb.classList.contains('selected'));
+        const url = 'visualizar.html?src=' + encodeURIComponent(selectedThumb.src);
+        thumbnails.forEach((thumb, idx) => {
+          if (!popups[idx] || popups[idx].closed) {
+            popups[idx] = window.open(url, '_blank');
+          } else {
+            popups[idx].location.href = url;
+            popups[idx].focus();
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>
